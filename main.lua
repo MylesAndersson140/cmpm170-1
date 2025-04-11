@@ -19,6 +19,12 @@ function love.load()
     
     -- Create player instance
     player = Player.new(400, 300)
+    
+    -- Table to store circles
+    circles = {}
+    
+    -- Initialize random seed
+    math.randomseed(os.time())
 end
 
 function love.update(dt)
@@ -59,6 +65,28 @@ function love.keypressed(key)
     if gameState == "menu" and key == "space" then
         gameState = "game"
     end
+    
+    -- Create a circle with random radius when 'e' is pressed during gameplay
+    if gameState == "game" and key == "e" then
+        createRandomCircle()
+    end
+end
+
+-- Function to create a circle with random radius
+function createRandomCircle()
+    local circle = {
+        x = love.math.random(50, love.graphics.getWidth() - 50),
+        y = love.math.random(50, love.graphics.getHeight() - 50),
+        radius = love.math.random(10, 50),
+        color = {
+            r = love.math.random(),
+            g = love.math.random(),
+            b = love.math.random(),
+            a = 1
+        }
+    }
+    
+    table.insert(circles, circle)
 end
 
 -- Example: placeholder functions for different game states
