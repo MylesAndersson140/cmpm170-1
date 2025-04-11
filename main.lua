@@ -11,12 +11,6 @@ function love.load()
     -- Example: setting default game state
     gameState = "menu"
     
-    -- Example: loading a font
-    defaultFont = love.graphics.newFont(14)
-    
-    -- Set default color and font
-    love.graphics.setFont(defaultFont)
-    
     -- Create player instance
     player = Player.new(400, 300)
     
@@ -72,6 +66,23 @@ function love.keypressed(key)
     end
 end
 
+-- Mouse click handling to remove circles
+function love.mousepressed(x, y, button)
+    if gameState == "game" and button == 1 then -- Left mouse button
+        -- Check if we clicked on any circle
+        for i = #circles, 1, -1 do -- Iterate backwards to safely remove
+            local circle = circles[i]
+            local distance = math.sqrt((circle.x - x)^2 + (circle.y - y)^2)
+            
+            if distance <= circle.radius then
+                -- Remove the circle if clicked
+                table.remove(circles, i)
+                break -- Exit after removing one circle
+            end
+        end
+    end
+end
+
 -- Function to create a circle with random radius
 function createRandomCircle()
     local circle = {
@@ -87,6 +98,7 @@ function createRandomCircle()
     }
     
     table.insert(circles, circle)
+    print("Circle created! Total circles: " .. #circles) -- Debug output
 end
 
 -- Example: placeholder functions for different game states
@@ -96,6 +108,7 @@ end
 
 function updateGame(dt)
     -- Update game logic
+    player:update(dt)
 end
 
 function drawMenu()
@@ -106,7 +119,25 @@ function drawMenu()
 end
 
 function drawGame()
-    -- Draw game
+    -- Draw game background
+    love.graphics.setColor(0.1, 0.1, 0.2)
+    love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+    
+    -- Draw all circles
+    for _, circle in ipairs(circles) do
+        love.graphics.setColor(circle.color.r, circle.color.g, circle.color.b, circle.color.a)
+        love.graphics.circle("fill", circle.x, circle.y, circle.radius)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.circle("line", circle.x, circle.y, circle.radius)
+    end
+    
+    -- Draw game objects
+    player:draw()
+    
+    -- Draw UI
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print("Game is running!", 400, 300)
+    love.graphics.print("Game is running! Use WASD or arrow keys to move", 20, 20)
+    love.graphics.print("Press 'E' to create a random circle", 20, 40)
+    love.graphics.print("Click on a circle to remove it", 20, 60)
+    love.graphics.print("Circles created: " .. #circles, 20, 80)
 end

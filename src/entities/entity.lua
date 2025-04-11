@@ -19,7 +19,7 @@ function Entity.new(x, y, width, height)
     self.vx = 0
     self.vy = 0
     
-    -- Other common properties
+    -- Ensures the player can see the entity, and we are able to modify it.
     self.visible = true
     self.active = true
     
@@ -38,11 +38,12 @@ end
 function Entity:draw()
     -- Base drawing logic
     if not self.visible then return end
-    
+
     -- For debugging, draw a rectangle representing the entity
     love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
 end
 
+-- Helper functions that may come in handy later.
 function Entity:getPosition()
     return self.x, self.y
 end
