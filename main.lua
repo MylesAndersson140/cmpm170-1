@@ -3,10 +3,15 @@
 
 -- Require our Player class
 local Player = require('src.entities.player')
+local planets = {}
 
 function love.load()
     -- Initialize your game here
     -- This function runs once when the game starts
+    
+    love.window.setMode(800, 1000) -- width, height in pixels
+    love.window.setTitle("Starry Planet Generator")
+    backgroundImage = love.graphics.newImage("src/assets/stars.png")
     
     -- Example: setting default game state
     gameState = "menu"
@@ -88,13 +93,15 @@ function createRandomCircle()
     local circle = {
         x = love.math.random(50, love.graphics.getWidth() - 50),
         y = love.math.random(50, love.graphics.getHeight() - 50),
-        radius = love.math.random(10, 50),
+        radius = love.math.random(20, 100),
         color = {
             r = love.math.random(),
             g = love.math.random(),
             b = love.math.random(),
             a = 1
-        }
+        },
+        hasRing = math.random() > 0.6,
+        name = "Planet " .. tostring(math.random(100, 9999))
     }
     
     table.insert(circles, circle)
@@ -122,9 +129,24 @@ function drawGame()
     -- Draw game background
     love.graphics.setColor(0.1, 0.1, 0.2)
     love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+
+    local windowWidth, windowHeight = love.graphics.getDimensions()
+    local imgWidth, imgHeight = backgroundImage:getDimensions()
+
+    love.graphics.setColor(1, 1, 1)
+    for x = 0, windowWidth, imgWidth do
+        for y = 0, windowHeight, imgHeight do
+            love.graphics.draw(backgroundImage, x, y)
+        end
+    end
     
     -- Draw all circles
     for _, circle in ipairs(circles) do
+        -- draw the ring first (behind the planet)
+        if circle.hasRing then
+            love.graphics.setColor(circle.color.r, circle.color.g, circle.color.b, 0.4)
+            love.graphics.ellipse("fill", circle.x, circle.y, circle.radius * 1.5, circle.radius * 0.5)
+        end
         love.graphics.setColor(circle.color.r, circle.color.g, circle.color.b, circle.color.a)
         love.graphics.circle("fill", circle.x, circle.y, circle.radius)
         love.graphics.setColor(1, 1, 1)
