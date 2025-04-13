@@ -151,6 +151,11 @@ function drawGame()
         love.graphics.circle("fill", circle.x, circle.y, circle.radius)
         love.graphics.setColor(1, 1, 1)
         love.graphics.circle("line", circle.x, circle.y, circle.radius)
+
+        -- Draw name
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print(circle.name, circle.x - circle.radius/2,
+                            circle.y + circle.radius + 10)
     end
     
     -- Draw game objects
