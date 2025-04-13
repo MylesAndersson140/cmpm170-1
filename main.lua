@@ -103,6 +103,17 @@ function createRandomCircle()
         hasRing = math.random() > 0.6,
         name = "Planet " .. tostring(math.random(100, 9999))
     }
+
+    local spots = {}
+        for s = 1, math.random(3, 6) do
+            local angle = math.random() * 2 * math.pi
+            local dist = math.random() * circle.radius * 0.8
+            local spotX = math.cos(angle) * dist
+            local spotY = math.sin(angle) * dist
+            local spotRadius = math.random(2, 5)
+            table.insert(spots, {x = spotX, y = spotY, radius = spotRadius})
+        end
+        circle.spots = spots
     
     table.insert(circles, circle)
     print("Circle created! Total circles: " .. #circles) -- Debug output
@@ -151,6 +162,13 @@ function drawGame()
         love.graphics.circle("fill", circle.x, circle.y, circle.radius)
         love.graphics.setColor(1, 1, 1)
         love.graphics.circle("line", circle.x, circle.y, circle.radius)
+        -- Draw the spots
+        for _, spot in ipairs(circle.spots) do
+            love.graphics.setColor(circle.color.r * 0.5, circle.color.g * 0.5,
+                                   circle.color.b * 0.5)
+            love.graphics.circle("fill", circle.x + spot.x, circle.y + spot.y,
+                                 spot.radius)
+        end
 
         -- Draw name
         love.graphics.setColor(1, 1, 1)
