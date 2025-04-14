@@ -3,10 +3,15 @@
 
 -- Require our Player class
 local Player = require('src.entities.player')
+local planets = {}
 
 function love.load()
     -- Initialize your game here
     -- This function runs once when the game starts
+    
+    love.window.setMode(800, 1000) -- width, height in pixels
+    love.window.setTitle("Starry Planet Generator")
+    backgroundImage = love.graphics.newImage("src/assets/stars.png")
     
     -- Example: setting default game state
     gameState = "menu"
@@ -88,14 +93,27 @@ function createRandomCircle()
     local circle = {
         x = love.math.random(50, love.graphics.getWidth() - 50),
         y = love.math.random(50, love.graphics.getHeight() - 50),
-        radius = love.math.random(10, 50),
+        radius = love.math.random(20, 100),
         color = {
             r = love.math.random(),
             g = love.math.random(),
             b = love.math.random(),
             a = 1
-        }
+        },
+        hasRing = math.random() > 0.6,
+        name = "Planet " .. tostring(math.random(100, 9999))
     }
+
+    local spots = {}
+        for s = 1, math.random(3, 6) do
+            local angle = math.random() * 2 * math.pi
+            local dist = math.random() * circle.radius * 0.8
+            local spotX = math.cos(angle) * dist
+            local spotY = math.sin(angle) * dist
+            local spotRadius = math.random(2, 5)
+            table.insert(spots, {x = spotX, y = spotY, radius = spotRadius})
+        end
+        circle.spots = spots
     
     table.insert(circles, circle)
     print("Circle created! Total circles: " .. #circles) -- Debug output
@@ -122,13 +140,40 @@ function drawGame()
     -- Draw game background
     love.graphics.setColor(0.1, 0.1, 0.2)
     love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+
+    local windowWidth, windowHeight = love.graphics.getDimensions()
+    local imgWidth, imgHeight = backgroundImage:getDimensions()
+
+    love.graphics.setColor(1, 1, 1)
+    for x = 0, windowWidth, imgWidth do
+        for y = 0, windowHeight, imgHeight do
+            love.graphics.draw(backgroundImage, x, y)
+        end
+    end
     
     -- Draw all circles
     for _, circle in ipairs(circles) do
+        -- draw the ring first (behind the planet)
+        if circle.hasRing then
+            love.graphics.setColor(circle.color.r, circle.color.g, circle.color.b, 0.4)
+            love.graphics.ellipse("fill", circle.x, circle.y, circle.radius * 1.5, circle.radius * 0.5)
+        end
         love.graphics.setColor(circle.color.r, circle.color.g, circle.color.b, circle.color.a)
         love.graphics.circle("fill", circle.x, circle.y, circle.radius)
         love.graphics.setColor(1, 1, 1)
         love.graphics.circle("line", circle.x, circle.y, circle.radius)
+        -- Draw the spots
+        for _, spot in ipairs(circle.spots) do
+            love.graphics.setColor(circle.color.r * 0.5, circle.color.g * 0.5,
+                                   circle.color.b * 0.5)
+            love.graphics.circle("fill", circle.x + spot.x, circle.y + spot.y,
+                                 spot.radius)
+        end
+
+        -- Draw name
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print(circle.name, circle.x - circle.radius/2,
+                            circle.y + circle.radius + 10)
     end
     
     -- Draw game objects
