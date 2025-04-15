@@ -1,6 +1,7 @@
 -- Player class
 -- Inherits from Entity
 
+local rocketImage = love.graphics.newImage("src/assets/rocket.png")
 local Entity = require('src.entities.entity')
 
 local Player = {}
@@ -47,9 +48,8 @@ end
 
 function Player:draw()
     -- Custom player drawing
-    love.graphics.setColor(0, 1, 0) -- Green color
-    love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
     love.graphics.setColor(1, 1, 1) -- Reset color
+    love.graphics.draw(rocketImage, self.x, self.y, 0, 0.5, 0.5) -- scales to 50%
 end
 
 return Player

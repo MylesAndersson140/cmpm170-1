@@ -179,6 +179,26 @@ function drawGame()
     -- Draw game objects
     player:draw()
     
+    -- Check for nearby planets
+    local hoverText = nil
+    for _, circle in ipairs(circles) do
+        local playerCenterX = player.x + player.width / 2
+        local playerCenterY = player.y + player.height / 2
+        local distance = math.sqrt((circle.x - playerCenterX)^2 + (circle.y - playerCenterY)^2)
+    
+        if distance < circle.radius then
+            hoverText = "You are near " .. circle.name
+            break
+        end
+    end
+
+    -- Show hover message if applicable
+    if hoverText then
+        love.graphics.setColor(1, 1, 0)
+        love.graphics.print(hoverText, 20, 110)
+    end
+
+
     -- Draw UI
     love.graphics.setColor(1, 1, 1)
     love.graphics.print("Game is running! Use WASD or arrow keys to move", 20, 20)
