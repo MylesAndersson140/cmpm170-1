@@ -2,6 +2,9 @@
 -- This is the entry point for your Love2D game
 
 -- Require our Player class
+local planetCountSelected = 0
+local buttons = {} -- new
+
 local Player = require('src.entities.player')
 local planets = {}
 
@@ -24,6 +27,13 @@ function love.load()
     
     -- Initialize random seed
     math.randomseed(os.time())
+
+    buttons = {
+        { text = "4 Planets", x = 350, y = 400, count = 4 },
+        { text = "8 Planets", x = 350, y = 450, count = 8 },
+        { text = "10 Planets", x = 350, y = 500, count = 10 }
+    }
+    
 end
 
 function love.update(dt)
@@ -66,27 +76,48 @@ function love.keypressed(key)
     end
     
     -- Create a circle with random radius when 'e' is pressed during gameplay
-    if gameState == "game" and key == "e" then
-        createRandomCircle()
-    end
+    -- if gameState == "game" and key == "e" then
+    --     createRandomCircle()
+    -- end
+
 end
 
 -- Mouse click handling to remove circles
 function love.mousepressed(x, y, button)
-    if gameState == "game" and button == 1 then -- Left mouse button
-        -- Check if we clicked on any circle
-        for i = #circles, 1, -1 do -- Iterate backwards to safely remove
-            local circle = circles[i]
-            local distance = math.sqrt((circle.x - x)^2 + (circle.y - y)^2)
-            
-            if distance <= circle.radius then
-                -- Remove the circle if clicked
-                table.remove(circles, i)
-                break -- Exit after removing one circle
+    if button == 1 then -- Left click
+        if gameState == "menu" then
+            -- Check if clicked on a button
+            for _, btn in ipairs(buttons) do
+                if x >= btn.x and x <= btn.x + 200 and y >= btn.y and y <= btn.y + 40 then
+                    planetCountSelected = btn.count
+                    startGame()
+                    break
+                end
+            end
+        elseif gameState == "game" then
+            -- Check if clicked on a planet
+            for i = #circles, 1, -1 do
+                local circle = circles[i]
+                local distance = math.sqrt((circle.x - x)^2 + (circle.y - y)^2)
+                
+                if distance <= circle.radius then
+                    table.remove(circles, i)
+                    break
+                end
             end
         end
     end
 end
+
+function startGame()
+    gameState = "game"
+    circles = {} -- Reset any old planets
+    for i = 1, planetCountSelected do
+        createRandomCircle()
+    end
+end
+
+
 
 -- Function to create a circle with random radius
 function createRandomCircle()
@@ -130,11 +161,20 @@ function updateGame(dt)
 end
 
 function drawMenu()
-    -- Draw menu
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print("MY GAME", 400, 200)
-    love.graphics.print("Press SPACE to start", 400, 250)
+    love.graphics.print("STAR EXPLORER", 300, 150)
+    love.graphics.print("Click below to start:", 300, 200)
+
+    -- Draw buttons
+    for _, btn in ipairs(buttons) do
+        love.graphics.setColor(0.2, 0.2, 0.6)
+        love.graphics.rectangle("fill", btn.x, btn.y, 200, 40)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.rectangle("line", btn.x, btn.y, 200, 40)
+        love.graphics.printf(btn.text, btn.x, btn.y + 10, 200, "center")
+    end
 end
+
 
 function drawGame()
     -- Draw game background
@@ -202,7 +242,6 @@ function drawGame()
     -- Draw UI
     love.graphics.setColor(1, 1, 1)
     love.graphics.print("Game is running! Use WASD or arrow keys to move", 20, 20)
-    love.graphics.print("Press 'E' to create a random circle", 20, 40)
     love.graphics.print("Click on a circle to remove it", 20, 60)
     love.graphics.print("Circles created: " .. #circles, 20, 80)
 end
