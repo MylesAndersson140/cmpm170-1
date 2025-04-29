@@ -5,6 +5,7 @@
 local planetCountSelected = 0
 local buttons = {} -- new
 
+local Enemy = require('src.entities.enemy')
 local Player = require('src.entities.player')
 local planets = {}
 
@@ -21,6 +22,8 @@ function love.load()
     
     -- Create player instance
     player = Player.new(400, 300)
+    enemy = Enemy.new(100, 100) -- spawn at some position
+
     
     -- Table to store circles
     circles = {}
@@ -46,6 +49,8 @@ function love.update(dt)
         updateMenu(dt)
     elseif gameState == "game" then
         updateGame(dt)
+    elseif gameState == "gameover" then
+        updateGameOver(dt)
     end
 end
 
@@ -58,29 +63,28 @@ function love.draw()
         drawMenu()
     elseif gameState == "game" then
         drawGame()
+    elseif gameState == "gameover" then
+        drawGameOver()
     end
 end
 
 function love.keypressed(key)
-    -- Handle key presses
-    -- This function is called when a key is pressed
-    
-    -- Example: quit game with escape key
     if key == "escape" then
         love.event.quit()
     end
-    
-    -- Example: start game when space is pressed in menu
+
     if gameState == "menu" and key == "space" then
         gameState = "game"
+    elseif gameState == "gameover" then
+        if key == "r" then
+            startGame()
+        elseif key == "m" then
+            gameState = "menu"
+        end
     end
-    
-    -- Create a circle with random radius when 'e' is pressed during gameplay
-    -- if gameState == "game" and key == "e" then
-    --     createRandomCircle()
-    -- end
-
 end
+
+
 
 -- Mouse click handling to remove circles
 function love.mousepressed(x, y, button)
@@ -111,11 +115,18 @@ end
 
 function startGame()
     gameState = "game"
-    circles = {} -- Reset any old planets
+
+    -- Reset planets
+    circles = {}
     for i = 1, planetCountSelected do
         createRandomCircle()
     end
+
+    -- Create fresh player and enemy
+    player = Player.new(400, 300)   -- spawn player back to center
+    enemy = Enemy.new(100, 100)     -- spawn enemy somewhere away
 end
+
 
 
 
@@ -158,6 +169,15 @@ end
 function updateGame(dt)
     -- Update game logic
     player:update(dt)
+    enemy:update(dt, player) -- Pass the player so the enemy can chase\
+
+    if player:collidesWith(enemy) then
+        gameState = "gameover"
+    end
+end
+
+function updateGameOver(dt)
+    -- No logic needed for now
 end
 
 function drawMenu()
@@ -218,6 +238,7 @@ function drawGame()
     
     -- Draw game objects
     player:draw()
+    enemy:draw()
     
     -- Check for nearby planets
     local hoverText = nil
@@ -244,4 +265,15 @@ function drawGame()
     love.graphics.print("Game is running! Use WASD or arrow keys to move", 20, 20)
     love.graphics.print("Click on a circle to remove it", 20, 60)
     love.graphics.print("Circles created: " .. #circles, 20, 80)
+end
+
+function drawGameOver()
+    love.graphics.setColor(0, 0, 0, 0.7)
+    love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+
+    love.graphics.setColor(1, 0, 0)
+    love.graphics.printf("GAME OVER", 0, 300, love.graphics.getWidth(), "center")
+
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.printf("Press R to Retry or M to go to Main Menu", 0, 400, love.graphics.getWidth(), "center")
 end
