@@ -94,7 +94,7 @@ function Player:handleInput(dt)
     if self.currentAnimState == "idle" then
         self.currentFrame = self.shipFrames.idle
     elseif self.currentAnimState == "left" then
-        self.currentFrame = self.shipFrames.left1
+        self.currentFrame = self.shipFrames.left2
     elseif self.currentAnimState == "right" then
         self.currentFrame = self.shipFrames.right1
     end
@@ -117,7 +117,7 @@ function Player:draw()
     love.graphics.draw(
         shipImage,
         self.currentFireFrame,
-        self.x + 10,  -- Center fire under ship (fine tune if needed)
+        self.x + 6,  -- Center fire under ship (fine tune if needed)
         self.y + 36,  -- Just under ship body (scaled)
         0,
         2, 2
